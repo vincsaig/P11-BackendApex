@@ -152,6 +152,33 @@ private class Order_Test {
 
         Task task = [SELECT Id,ReminderDateTime FROM Task WHERE WhatId = :acc.Id];
         System.assertNotEquals(null, task, 'A task should have been created');
-        System.assertEquals(today().addDays(5).days, task.ReminderDateTime.days, 'The reminder should be 5 days from now');
+        System.assertEquals(Date.today().addDays(5), task.ReminderDateTime, 'The reminder should be 5 days from now');
+    }
+
+    @isTest
+    static void testAccountSetToActiveOnOrderAdd(){
+        Account acc = new Account(Name = 'testAccountSetToActiveOnOrderAdd');
+
+        insert acc;
+        Contract contract = new Contract(
+            AccountId = acc.Id,
+            Status = 'Draft',
+            StartDate = Date.today(),
+            ContractTerm = 1
+        );
+        insert contract;
+        contract.Status = 'Activated';
+        update contract;
+
+        Order order = [SELECT Id, AccountId,ContractId FROM Order LIMIT 1];
+        order.AccountId = acc.Id;
+        order.ContractId = contract.Id;
+
+        test.startTest();
+        update order;
+        test.stopTest();
+
+        acc = [SELECT Id, Active__c FROM Account WHERE Name = 'testAccountSetToActiveOnOrderAdd'];
+        System.assertEquals(true, acc.Active__c,'Account should be active');
     }
 }
