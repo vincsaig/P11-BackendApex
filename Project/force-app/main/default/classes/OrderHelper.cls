@@ -138,6 +138,10 @@ public without sharing class OrderHelper {
         }
     }
 
+    /*
+    * On order update, check if the linked account was changed,
+    * then checks if account is active if it was
+    */
     public static void setAccountToActiveOnUpdate(List<Order> newOrders, Map<Id,Order> oldOrders){
         List<Order> OrdersAccountToActivate = new List<Order>();
         for(Order order : newOrders){
