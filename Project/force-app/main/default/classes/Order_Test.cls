@@ -170,12 +170,10 @@ private class Order_Test {
         contract.Status = 'Activated';
         update contract;
 
-        Order order = [SELECT Id, AccountId,ContractId FROM Order LIMIT 1];
-        order.AccountId = acc.Id;
-        order.ContractId = contract.Id;
+        Order order = new Order(AccountId = acc.Id, EffectiveDate = Date.today(), Status = 'Draft', Pricebook2Id = Test.getStandardPricebookId(), ContractId = contract.Id);
 
         test.startTest();
-        update order;
+        insert order;
         test.stopTest();
 
         acc = [SELECT Id, Active__c FROM Account WHERE Name = 'testAccountSetToActiveOnOrderAdd'];
