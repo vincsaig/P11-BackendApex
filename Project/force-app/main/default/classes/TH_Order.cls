@@ -5,12 +5,7 @@ public without sharing class TH_Order extends TriggerHandler {
     Map<Id,Order> oldMap = (Map<Id,Order>)Trigger.oldMap;
 
     public override void beforeUpdate(){
-        // OrderHelper.checkOrderHasProduct(newMap, oldMap);
-        OrderHelper.setNetAmount(newMap, oldMap);
-    }
-
-    public override void afterUpdate(){
-        OrderHelper.setAccountRevenue(newMap, oldMap);
+        OrderHelper.checkOrderHasProduct(newMap, oldMap);
     }
 
     public override void afterInsert(){
