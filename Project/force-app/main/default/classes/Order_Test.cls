@@ -47,7 +47,7 @@ private class Order_Test {
     }
 
     @isTest
-    static void testCheckOrderHasProduct(){
+    static void testCheckOrderHasNoProduct(){
         Account acc = [SELECT Id FROM Account LIMIT 1];
         Contract contract = [SELECT Id FROM Contract LIMIT 1];
         Order order = new Order(AccountId = acc.Id, EffectiveDate = Date.today(), Status = 'Draft', Pricebook2Id = Test.getStandardPricebookId(), ContractId = contract.Id, ShippingCity = 'test1');
@@ -62,6 +62,9 @@ private class Order_Test {
         } 
         catch(DmlException e){
             exceptionThrown = true;
+            System.assertEquals(true, 
+            e.getMessage().contains('You can\'t set an order to \'Active\' if there\'s no associated orderItem/product. Please link a product to this order and try again.'),
+            'The error message should contain this message : \'You can\'t set an order to \'Active\' if there\'s no associated orderItem/product. Please link a product to this order and try again.\' instead got :' + e.getMessage());
         }
         test.stopTest();
         System.assertEquals(true,exceptionThrown,'An exception should have been thrown');
@@ -71,6 +74,31 @@ private class Order_Test {
         System.assertEquals('Draft', order.Status, 'The order\'s status should still be Draft');
     }
 
+    @isTest
+    static void testCheckOrderHasProduct(){
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        Contract contract = [SELECT Id FROM Contract LIMIT 1];
+        Order order = new Order(AccountId = acc.Id, EffectiveDate = Date.today(), Status = 'Draft', Pricebook2Id = Test.getStandardPricebookId(), ContractId = contract.Id, ShippingCity = 'test1');
+        insert order;
+
+        PricebookEntry pbe = [SELECT Id FROM PricebookEntry LIMIT 1];
+
+        List<OrderItem> oiList = new List<OrderItem>();
+        OrderItem oi1 = new OrderItem (OrderId = order.Id, PricebookEntryId = pbe.Id, Quantity=10, UnitPrice = 150);
+        oiList.add(oi1);
+        OrderItem oi2 = new OrderItem (OrderId = order.Id, PricebookEntryId = pbe.Id, Quantity=10, UnitPrice = 150);
+        oiList.add(oi2);
+        
+        insert oiList;
+
+        test.startTest();
+        order.Status = 'Activated';
+        update order;
+        test.stopTest();
+
+        order = [SELECT Id,Status FROM Order WHERE ShippingCity = 'test1'];
+        System.assertEquals('Activated', order.Status, 'The order\'s status should be Activated');
+    }
     @isTest
     static void testAccountHasOrder(){
         Order order = [SELECT Id FROM Order LIMIT 1];
