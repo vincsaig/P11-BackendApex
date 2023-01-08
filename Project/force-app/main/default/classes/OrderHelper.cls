@@ -7,8 +7,8 @@ public without sharing class OrderHelper {
         List<Order> ordersToCheck = new List<Order>();
         Map<Id,List<OrderItem>> linkIdOrderProduct = new Map<Id,List<OrderItem>>();
         for(Order newOrder : newOrders.values()){
-            Order oldOrder = newOrders.get(newOrder.Id);
-            if(newOrder.Status == 'Active' && oldOrder.Status != 'Active'){
+            Order oldOrder = oldOrders.get(newOrder.Id);
+            if(newOrder.Status == 'Activated' && oldOrder.Status != 'Activated'){
                 ordersToCheck.add(newOrder);
             }
         }

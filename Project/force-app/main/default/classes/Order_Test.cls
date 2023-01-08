@@ -47,6 +47,31 @@ private class Order_Test {
     }
 
     @isTest
+    static void testCheckOrderHasProduct(){
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        Contract contract = [SELECT Id FROM Contract LIMIT 1];
+        Order order = new Order(AccountId = acc.Id, EffectiveDate = Date.today(), Status = 'Draft', Pricebook2Id = Test.getStandardPricebookId(), ContractId = contract.Id, ShippingCity = 'test1');
+
+        insert order;
+
+        Boolean exceptionThrown = false;
+        test.startTest();
+        try{
+            order.Status = 'Activated';
+            update order;
+        } 
+        catch(DmlException e){
+            exceptionThrown = true;
+        }
+        test.stopTest();
+        System.assertEquals(true,exceptionThrown,'An exception should have been thrown');
+
+        order = [SELECT Id,Status FROM Order WHERE ShippingCity = 'test1'];
+
+        System.assertEquals('Draft', order.Status, 'The order\'s status should still be Draft');
+    }
+
+    @isTest
     static void testAccountHasOrder(){
         Order order = [SELECT Id FROM Order LIMIT 1];
         Account acc = [SELECT Id, Active__c FROM Account LIMIT 1];
