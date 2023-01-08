@@ -1,6 +1,6 @@
 global class Batch02AccountWithoutOrderOrTask implements Database.Batchable<sObject> {
     global Database.QueryLocator start(Database.BatchableContext info){ 
-        return Database.getQueryLocator([SELECT Id,(SELECT Id,WhatId FROM Tasks WHERE IsReminderSet = true AND Subject = 'Call') 
+        return Database.getQueryLocator([SELECT Id,(SELECT Id,WhatId,OwnerId FROM Tasks WHERE IsReminderSet = true AND Subject = 'Call') 
                                         FROM Account 
                                         WHERE Active__c = false]
                                         );
@@ -16,7 +16,8 @@ global class Batch02AccountWithoutOrderOrTask implements Database.Batchable<sObj
                     Status = 'Nouvelle',
                     Priority = 'Normale',
                     WhatId = acc.Id,
-                    ReminderDateTime = Date.today().addDays(5)
+                    ReminderDateTime = Date.today().addDays(5),
+                    OwnerId = acc.OwnerId
                 );
                 tasksToInsert.add(task);
             }
